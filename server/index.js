@@ -19,6 +19,12 @@ app.get("/balance/:address", (req, res) => {
 });
 
 app.post("/send", (req, res) => {
+
+//   async function signMessage(msg) {
+//     const messageHash = hashMessage(msg);
+//     return secp.sign(messageHash, PRIVATE_KEY, { recovered: true });
+// }
+
   const { sender, recipient, amount } = req.body;
 
   setInitialBalance(sender);

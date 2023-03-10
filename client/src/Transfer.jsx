@@ -1,9 +1,14 @@
 import { useState } from "react";
 import server from "./server";
+import * as secp from "ethereum-cryptography/secp256k1";
+import { toHex } from "ethereum-cryptography/utils";
+import { utf8ToBytes } from "ethereum-cryptography/utils";
+import { keccak256 } from "ethereum-cryptography/keccak";
 
 function Transfer({ address, setBalance }) {
   const [sendAmount, setSendAmount] = useState("");
   const [recipient, setRecipient] = useState("");
+  const [privateKey, setPrivateKey] = useState("");
 
   const setValue = (setter) => (evt) => setter(evt.target.value);
 
@@ -50,5 +55,4 @@ function Transfer({ address, setBalance }) {
     </form>
   );
 }
-
 export default Transfer;

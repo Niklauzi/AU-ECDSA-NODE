@@ -13,7 +13,6 @@ console.log('public key:', toHex(publicKey));
 const address =  keccak256(publicKey.slice(1)).slice(-20);
 
 console.log('Address:', toHex(address));
-
 /*
 private key: 2bd980bc7ce5b2dfec2bc8e458a3572d1fcd1c7cae5a96aea8d685c5ee4fe9d9
 public key: 04f288d30ca4ff9ccab843e96f87bd5f73ae6f01eaee77c7e4846fd90456af593c3ebbe715f91bab5d490e3fbbed01d1c3f3e6be6979c950d564aec2e10c7b8893

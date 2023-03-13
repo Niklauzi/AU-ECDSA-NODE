@@ -3,6 +3,10 @@ const app = express();
 const cors = require("cors");
 const port = 3042;
 
+const secp = require('ethereum-cryptography/secp256k1');
+const keccak = require('ethereum-cryptography/keccak');
+const utils = require('ethereum-cryptography/utils');
+
 app.use(cors());
 app.use(express.json());
 
@@ -14,16 +18,16 @@ const balances = {
 
 app.get("/balance/:address", (req, res) => {
   const { address } = req.params;
+  console.log(address);
+  console.log(balances);
   const balance = balances[address] || 0;
+  console.log(balance);
   res.send({ balance });
 });
 
 app.post("/send", (req, res) => {
 
-//   async function signMessage(msg) {
-//     const messageHash = hashMessage(msg);
-//     return secp.sign(messageHash, PRIVATE_KEY, { recovered: true });
-// }
+
 
   const { sender, recipient, amount } = req.body;
 

@@ -11,9 +11,8 @@ function Wallet({ address, setAddress, balance, setBalance, privateKey, setPriva
     const publicKey = secp.getPublicKey(privateKey);
     const address =  toHex(keccak256(publicKey.slice(1)).slice(-20));
 
-    
     setAddress(address);
-    console.log(address)
+    console.log(`0x${address}`)
     if (address) {
       const {
         data: { balance },
@@ -34,7 +33,7 @@ function Wallet({ address, setAddress, balance, setBalance, privateKey, setPriva
       </label>
 
       <div>
-        Address: 0x{address.slice(-40)}
+        Address: 0x{address}
       </div>
 
       <div className="balance">Balance: {balance}</div>

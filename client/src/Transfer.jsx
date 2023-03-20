@@ -11,10 +11,10 @@ function Transfer({ address, setBalance, privateKey }) {
 
   const setValue = (setter) => (evt) => setter(evt.target.value);
 
-  
 
   async function transfer(evt) {
     evt.preventDefault();
+
 
     try {
       const data = {
@@ -22,12 +22,10 @@ function Transfer({ address, setBalance, privateKey }) {
         amount: parseInt(sendAmount),
         recipient,
       };
-      const messageHash = utils.toHex(
-        keccak256(utf8ToBytes(JSON.stringify(data)))
-      );
-      const signedResponse = await secp.sign(messageHash, privateKey, {
-        recovered: true,
-      });
+      const messageHash = toHex(
+        keccak256(utf8ToBytes(JSON.stringify(data))));
+
+      const signedResponse = await secp.sign(messageHash, privateKey, {recovered: true});
 
       const {
         data: { balance },
@@ -39,7 +37,6 @@ function Transfer({ address, setBalance, privateKey }) {
       console.log(`Balance : ${balance}`);
       setBalance(balance);
     } catch (ex) {
-      console.log(ex);
       alert(ex.response.data.message);
     }
   }

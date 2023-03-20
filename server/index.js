@@ -2,10 +2,9 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const port = 3042;
-
-const secp = require('ethereum-cryptography/secp256k1');
-const keccak = require('ethereum-cryptography/keccak');
-const utils = require('ethereum-cryptography/utils');
+const { keccak256 } = require("ethereum-cryptography/keccak");
+const { utf8ToBytes,toHex,hexToBytes } = require("ethereum-cryptography/utils");
+const secp = require("ethereum-cryptography/secp256k1");
 
 app.use(cors());
 app.use(express.json());
@@ -18,18 +17,14 @@ const balances = {
 
 app.get("/balance/:address", (req, res) => {
   const { address } = req.params;
-  console.log(address);
-  console.log(balances);
   const balance = balances[address] || 0;
-  console.log(balance);
   res.send({ balance });
 });
 
 app.post("/send", (req, res) => {
-
-
-
-  const { sender, recipient, amount } = req.body;
+  const { messageHash, signedResponse, data} = req.body;
+  const amount = data.amount;
+  const sender = data.sender;
 
   setInitialBalance(sender);
   setInitialBalance(recipient);
@@ -52,3 +47,24 @@ function setInitialBalance(address) {
     balances[address] = 0;
   }
 }
+
+function setInitialBalance(address) {
+  if (!balances[address]) {
+    balances[address] = 0;
+  }
+}
+function hashMessage(message) {
+  const bytes = utf8ToBytes(message);
+  return keccak256(bytes);
+}
+function addressFromPublicKey(publicKey){
+  const addrBytes = publicKey.slice(1);
+  const hash = keccak256(addrBytes);
+  return hash.slice(-20);
+}
+
+// const recovered = 
+// secp.recoverPublicKey(messageHash, hexToBytes(sign), recoveryBit);
+
+//   const addressOfSign = toHex(addressFromPublicKey(recovered));
+//   console.log('addressOfSign:',addressOfSign)

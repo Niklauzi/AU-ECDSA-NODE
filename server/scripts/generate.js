@@ -26,70 +26,44 @@ private key: 29cc47c2ed6776f323e22ddd90cc3627f663d894e3d25cac09e65ba2a7f3b028
 public key: 04ce0f9e61f4034d3a18e09f32ecaaa7f7fdcea3e099e98b37db5cf3c8fa40039dfb0bceda4a92a3fa270deed5a2db8854127f3126d5eea7be45d82bf617132dda
 Address: 7b3962552187cde49ca8e160f07ddba0cdeeadc1
 */
-// app.get('/balance/:address', (req, res) => {
-//     const { address } = req.params;
-//     console.log(address);
-//     console.log(balances);
-//     const balance = balances[address] || 0;
-//     console.log(balance);
-//     res.send({ balance });
-//   });
-//   const dataValidation = async (req, res, next) => {
-//     try {
-//       if (!req.body.data.recipient) throw new Error('Specify the sender!');
-//       const isValidBalance = +req.body.data.amount > 0;
-//       if (!isValidBalance) throw new Error('Invalid Amount');
-//     } catch (error) {
-//       return res.status(400).send({ message: error.message });
-//     }
-//     next();
-//   };
+app.post("/send", (req, res) => {
+    const { sender, recipient, amount, sign, recoveryBit} = req.body;
+    const message = {sender, amount,recipient};
+    const messageHash = hashMessage(JSON.stringify(message));
+    const recovered = secp.recoverPublicKey(messageHash, hexToBytes(sign), recoveryBit);
+
+    const addressOfSign = toHex(addressFromPublicKey(recovered));
+    console.log('addressOfSign:',addressOfSign)
+
+    setInitialBalance(sender);
+    setInitialBalance(recipient);
+    if(sender!==addressOfSign){
+      res.status(400).send({ message: "You're not allowed to move this funds" });
+    }else if (balances[sender] < amount) {
+      res.status(400).send({ message: "Not enough funds!" });
+    } else {
+      balances[sender] -= amount;
+      balances[recipient] += amount;
+      res.send({ balance: balances[sender] });
+    }
+  });
+
+  app.listen(port, () => {
+    console.log(`Listening on port ${port}!`);
+  });
   
-//   app.post('/send', dataValidation, (req, res) => {
-//     const { messageHash, signedResponse, data } = req.body;
-//     const amount = data.amount;
-//     const sender = data.sender;
-//     setInitialBalance(data.sender);
-//     setInitialBalance(data.recipient);
-//     const isValid = isValidSender(messageHash, signedResponse, sender);
-//     if (!isValid) return res.status(400).send({ message: 'Not a valid sender!' });
-  
-//     if (balances[sender] < amount) {
-//       res.status(400).send({ message: 'Not enough funds!' });
-//     } else {
-//       balances[sender] -= amount;
-//       balances[data.recipient] += amount;
-//       res.send({ balance: balances[sender] });
-//     }
-//   });
-  
-//   app.listen(port, () => {
-//     console.log(`Listening on port ${port}!`);
-//   });
-  
-//   function setInitialBalance(address) {
-//     if (!balances[address]) {
-//       balances[address] = 0;
-//     }
-//   }
-//   const isValidSender = (messageHash, signedResponse, sender) => {
-//     const signature = Uint8Array.from(Object.values(signedResponse[0]));
-//     const publicKey = secp.recoverPublicKey(
-//       messageHash,
-//       signature,
-//       signedResponse[1]
-//     );
-//     const isSigned = secp.verify(signature, messageHash, publicKey);
-  
-//     const isValidSender =
-//       sender.toString() === getAddressFromPublicKey(publicKey);
-//     console.log(sender, getAddressFromPublicKey(publicKey));
-//     if (!isValidSender && isSigned) return false;
-//     return true;
-//   };
-  
-//   const getAddressFromPublicKey = (pk) => {
-//     console.log(pk);
-//     const walletAddress = utils.toHex(pk.slice(1).slice(-20));
-//     return walletAddress.toString();
-//   };
+  function setInitialBalance(address) {
+    if (!balances[address]) {
+      balances[address] = 0;
+    }
+  }
+  function hashMessage(message) {
+    const bytes = utf8ToBytes(message);
+    return keccak256(bytes);
+  }
+  function addressFromPublicKey(publicKey){
+    const addrBytes = publicKey.slice(1);
+    const hash = keccak256(addrBytes);
+    return hash.slice(-20);
+  }
+  Footer

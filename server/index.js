@@ -3,7 +3,7 @@ const app = express();
 const cors = require("cors");
 const port = 3042;
 const { keccak256 } = require("ethereum-cryptography/keccak");
-const { utf8ToBytes,toHex,hexToBytes } = require("ethereum-cryptography/utils");
+const { toHex } = require("ethereum-cryptography/utils");
 const secp = require("ethereum-cryptography/secp256k1");
 
 app.use(cors());
